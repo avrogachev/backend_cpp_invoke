@@ -1,5 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+import ctypes
+import pathlib
 import random
 
 #sudo uvicorn main:app --host 0.0.0.0 --port 80 --ssl-keyfile=/etc/letsencrypt/live/spacequest.site/privkey.pem --ssl-certfile=/etc/letsencrypt/live/spacequest.site/fullchain.pemscre
@@ -18,6 +20,11 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+libname = pathlib.Path().absolute() / "libspacecraft.so"
+c_lib = ctypes.CDLL(libname)
+c_lib.CalcFuelCostKg.restype = ctypes.c_structure
+
 
 team_id = [i for i in range(1000, 100000)]  # быдлокод для выдачи рандомных АЙДИ командам - между с и с + 1 стоял await
 random.shuffle(team_id)  # и двум командам бот дал один айди - никогда так не пишите и не делайте. Используйте
@@ -62,9 +69,12 @@ STORAGE = {} # can storage everything!
 
 
 
-@app.get("/")
+@app.get("/kk")
 async def root():
-    return {"message": "Космопупырышки другой порт"}
+
+    #answer = c_lib.CalcFuelCostKg(ctypes.c_float(100.0), ctypes.c_float(200.0))
+    #print(f"    In Python: int: {x} float {y:.1f} return val {answer:.1f}")
+    return {"message": c_lib.CalcFuelCostKg(ctypes.c_double(1.0), ctypes.c_double(1.0))}
 
 
 @app.get("/is_new_player/{id}")
@@ -187,3 +197,9 @@ async def sandstorm(id : int, key): # http://127.0.0.1:8000/items/1234.09/kek is
         ADMINS = {}
         STORAGE = {}
         return {"is_sandstormed": 'done'}
+
+
+#if __name__ == "__main__":
+    # Load the shared library into ctypes
+#    libname = pathlib.Path().absolute() / "libspacecraft.so"
+#    c_lib = ctypes.CDLL(libname)
