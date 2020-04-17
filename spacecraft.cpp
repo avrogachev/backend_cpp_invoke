@@ -98,8 +98,27 @@ double CalcFuelCostKg(
     return ( fuelCostPerSecond * deltaTEngineSec );
 }
 
+/*"H = " <<  hTurnOnEngineKm << " km, F = "
+     << engineForceNewtons << " N, mass = "
+     << spacecraftMass << " kg: ";
+cout << "deltaT2Sec = " << deltaT2Sec
+        << " sec, V2MSec = " << V2MSec
+        << " m/s, fuel = " << fuelCostKg << " kg\n";*/
+
+
 //основная функция расчета - на вход получает данные от пользователя
-void CommonCalculations(
+struct commonSolution
+{
+    bool resultSecondStep;
+    bool isSolution;
+    double hTurnOnEngineKm;
+    double engineForceNewtons;
+    double spacecraftMass;
+    double deltaT2Sec;
+    double V2MSec;
+    double fuelCostKg;
+};
+commonSolution CommonCalculations(
         double hTurnOnEngineKm,//высота над поверхностью планеты в момент, когда включается движок
         double engineForceNewtons )//величина тяги двигателя, Н
 {
@@ -107,6 +126,8 @@ void CommonCalculations(
     // и надо выбрать ограничения для engineForceNewtons
 
     //обсчет участка свободного падения до включения двигателя
+
+    commonSolution result;
     double deltaT1Sec;
     double V1MSec;
     CalcIntervalFreeFalling(
@@ -136,7 +157,19 @@ void CommonCalculations(
 //         << spacecraftMass << " kg: ";
     if( resultSecondStep == false )
     {
-        //cout << "Surface not achieved - flying up\n";//сообщение, что взлетаем, не достигнув поверхности планеты
+      result =
+      {
+        resultSecondStep,
+        false,
+        hTurnOnEngineKm,
+        engineForceNewtons,
+        spacecraftMass,
+        deltaT2Sec,
+        V2MSec,
+        0.0
+      };
+      return(result);
+      //  cout << "Surface not achieved - flying up\n";//сообщение, что взлетаем, не достигнув поверхности планеты
     }
     else
     {
@@ -146,12 +179,40 @@ void CommonCalculations(
 
         if( ( V2MSec < LIMIT_VERTICAL_V_MSEC )&&( fuelCostKg < LIMIT_FUEL_KG ) )
         {
-            cout << "H = " << hTurnOnEngineKm << " km, F = "
+          result =
+          {
+            resultSecondStep,
+            true,
+            hTurnOnEngineKm,
+            engineForceNewtons,
+            spacecraftMass,
+            deltaT2Sec,
+            V2MSec,
+            fuelCostKg
+          };
+          return(result);
+            /*cout << "H = " << hTurnOnEngineKm << " km, F = "
                  << engineForceNewtons << " N, mass = "
                  << spacecraftMass << " kg: ";
             cout << "deltaT2Sec = " << deltaT2Sec
                     << " sec, V2MSec = " << V2MSec
-                    << " m/s, fuel = " << fuelCostKg << " kg\n";
+                    << " m/s, fuel = " << fuelCostKg << " kg\n";*/
+        }
+        else
+        {
+          result =
+          {
+            resultSecondStep,
+            false,
+            hTurnOnEngineKm,
+            engineForceNewtons,
+            spacecraftMass,
+            deltaT2Sec,
+            V2MSec,
+            fuelCostKg
+          };
+          return(result);
+        /*    cout << "V2Msec greater than LIMIT or fuelCostKg too large \n";*/
         }
     }
 }
@@ -159,6 +220,7 @@ void CommonCalculations(
 
 int main()
 {
+    commonSolution result;
     int iQuantity = 1000;
     double hStep = ( H_START_KM - 0 )/ (double)iQuantity;
 
@@ -174,9 +236,15 @@ int main()
         for( int j = 0; j < jQuantity; j++ )
         {
             double engineForceNewtons = ENGINE_FORCE_NEWTONS_MIN + engineForceStep * j;
-            CommonCalculations(
+            result = CommonCalculations(
                     hTurnOnEngineKm,//высота над поверхностью планеты в момент, когда включается движок
                     engineForceNewtons );//величина тяги двигателя, Н
+            if (result.isSolution == true)
+            {
+              cout << "H = " << result.hTurnOnEngineKm << " km, F = "
+                   << result.engineForceNewtons << " N, mass = "
+                   << result.spacecraftMass << " kg: \n";
+            }
         }
     }
 
