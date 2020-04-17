@@ -23,7 +23,34 @@ app.add_middleware(
 
 libname = pathlib.Path().absolute() / "libspacecraft.so"
 c_lib = ctypes.CDLL(libname)
-c_lib.CalcFuelCostKg.restype = ctypes.c_structure
+c_lib.CalcFuelCostKg.restype = ctypes.c_void_p
+
+#typedef struct
+#{
+#    bool resultSecondStep;
+#    bool isSolution;
+#    double hTurnOnEngineKm;
+#    double engineForceNewtons;
+#    double spacecraftMass;
+#    double deltaT2Sec;
+#    double V2MSec;
+#    double fuelCostKg;
+#} commonSolution;
+
+class commonSolution(ctypes.Structure):
+    _fields_ = [("resultSecondStepbool", ctypes.c_bool),
+                ("isSolution", ctypes.c_bool ),
+                ("hTurnOnEngineKm", ctypes.c_double),
+                ("engineForceNewtons", ctypes.c_double),
+                ("spacecraftMass", ctypes.c_double),
+                ("deltaT2Sec", ctypes.c_double),
+                ("V2MSec", ctypes.c_double),
+                ("fuelCostKg", ctypes.c_double)]
+
+
+#extern "C" {
+#    commonSolution CommonCalculations(double, double);
+#}
 
 
 team_id = [i for i in range(1000, 100000)]  # быдлокод для выдачи рандомных АЙДИ командам - между с и с + 1 стоял await
