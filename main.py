@@ -23,7 +23,7 @@ app.add_middleware(
 
 libname = pathlib.Path().absolute() / "libspacecraft.so"
 c_lib = ctypes.CDLL(libname)
-c_lib.CalcFuelCostKg.restype = ctypes.c_void_p
+c_lib.CommonCalculations.restype = ctypes.c_void_p
 
 #typedef struct
 #{
