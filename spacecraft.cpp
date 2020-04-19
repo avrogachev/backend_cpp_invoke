@@ -103,10 +103,6 @@ double CalcFuelCostKg(
         double engineForceNewtons )//величина тяги двигателя, Н
 {
     double fuelCostPerSecond = engineForceNewtons / IG;
-      cout << "input1 = " << deltaTEngineSec;
-      cout << "input2 = " << engineForceNewtons;
-      cout << "answer = " << fuelCostPerSecond * deltaTEngineSec;
-      cout << "\n";
     return ( fuelCostPerSecond * deltaTEngineSec );
 }
 
@@ -208,12 +204,6 @@ commonSolution CommonCalculations(
             fuelCostKg
           };
           return(result);
-            cout << "H = " << hTurnOnEngineKm << " km, F = "
-                 << engineForceNewtons << " N, mass = "
-                 << spacecraftMass << " kg: ";
-            cout << "deltaT2Sec = " << deltaT2Sec
-                    << " sec, V2MSec = " << V2MSec
-                    << " m/s, fuel = " << fuelCostKg << " kg\n";
         }
         else
         {
